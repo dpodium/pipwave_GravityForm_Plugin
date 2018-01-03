@@ -24,18 +24,18 @@ Author URI: https://www.pipwave.com/
 
 define( 'GF_PIPWAVE_VERSION', 1.0 );
 
-add_action( 'gform_loaded', array( 'GF_Pipwave_Bootstrap', 'load' ),5 );
+add_action( 'gform_loaded', array( 'GF_pipwave_Bootstrap', 'load' ),5 );
 
-class GF_Pipwave_Bootstrap {
+class GF_pipwave_Bootstrap {
     public static function load() {
         if ( !method_exists( 'GFForms', 'include_payment_addon_framework' ) ) {
             return;
         }
         require_once( 'class-gf-pipwave.php' );
-        GFAddOn::register( 'GFPipwave' );
+        GFAddOn::register( 'GFpipwave' );
     }
 }
 
 function gf_pipwave() {
-    return GFPipwave::get_instance();
+    return GFpipwave::get_instance();
 }

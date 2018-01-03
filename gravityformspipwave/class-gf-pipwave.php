@@ -1,17 +1,17 @@
 <?php
 
-add_action( 'wp', array( 'GFPipwave', 'maybe_thankyou_page' ), 5 );
+add_action( 'wp', array( 'GFpipwave', 'maybe_thankyou_page' ), 5 );
 
 GFForms::include_payment_addon_framework();
 
-class GFPipwave extends GFPaymentAddOn {
+class GFpipwave extends GFPaymentAddOn {
 
     protected $_version                     = GF_PIPWAVE_VERSION;
     protected $_min_gravityforms_version    = '1.9';
     protected $_slug                        = 'gravityformspipwave';
     protected $_path                        = 'gravityformspipwave/pipwave.php';
     protected $_full_path                   = __FILE__;
-    protected $_title                       = 'Gravity Forms Pipwave Add-On';
+    protected $_title                       = 'Gravity Forms pipwave Add-On';
     protected $_short_title                 = 'pipwave';
 	protected $_supports_callbacks          = true;
 
@@ -19,7 +19,7 @@ class GFPipwave extends GFPaymentAddOn {
 
     public static function get_instance() {
         if( self::$_instance == null ) {
-            self::$_instance = new GFPipwave();
+            self::$_instance = new GFpipwave();
         }
         return self::$_instance;
     }
@@ -61,11 +61,10 @@ class GFPipwave extends GFPaymentAddOn {
 	public function send_request_to_pw( $data, $pw_api_key ) {
 		$agent = "Mozilla/4.0 ( compatible; MSIE 6.0; Windows NT 5.0 )";
 		$ch = curl_init();
-		curl_setopt( $ch, CURLOPT_PROXY, 'my-proxy.offgamers.lan:3128' );
 		curl_setopt( $ch, CURLOPT_HTTPHEADER, array( 'x-api-key:' . $pw_api_key ) );
 		curl_setopt( $ch, CURLOPT_POST, 1 );
 		curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $data ) );
-		curl_setopt( $ch, CURLOPT_URL, 'https://staging-api.Pipwave.com/payment' );
+		curl_setopt( $ch, CURLOPT_URL, 'https://api.pipwave.com/payment' );
 		curl_setopt( $ch, CURLOPT_VERBOSE, 1 );
 		curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, 2 );
 		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, FALSE );
@@ -222,16 +221,16 @@ EOD;
 	public function getUrlByTestMode( $testMode ) {
 		if ( $testMode == 0 ) {
 			$someUrl = [
-				'URL'               => 'https://api.Pipwave.com/payment',
-				'RENDER_URL'        => 'https://secure.Pipwave.com/sdk/',
-				'LOADING_IMAGE_URL' => 'https://secure.Pipwave.com/images/loading.gif',
+				'URL'               => 'https://api.pipwave.com/payment',
+				'RENDER_URL'        => 'https://secure.pipwave.com/sdk/',
+				'LOADING_IMAGE_URL' => 'https://secure.pipwave.com/images/loading.gif',
 			];
 		} else {
 			if ( $testMode == 1 ) {
 				$someUrl = [
-					'URL'               => 'https://staging-api.Pipwave.com/payment',
-					'RENDER_URL'        => 'https://staging-checkout.Pipwave.com/sdk/',
-					'LOADING_IMAGE_URL' => 'https://staging-checkout.Pipwave.com/images/loading.gif',
+					'URL'               => 'https://staging-api.pipwave.com/payment',
+					'RENDER_URL'        => 'https://staging-checkout.pipwave.com/sdk/',
+					'LOADING_IMAGE_URL' => 'https://staging-checkout.pipwave.com/images/loading.gif',
 				];
 			} else {
 				$someUrl = '';//error
@@ -265,7 +264,7 @@ EOD;
 
 	    $response           = $this->send_request_to_pw( $data, $data['api_key'] );
 
-		$url                = 'https://staging-checkout.pipwave.com/pay?token=';
+		$url                = 'https://checkout.pipwave.com/pay?token=';
 		$url               .= $response['token'];
 
 	    return $url;
@@ -278,7 +277,7 @@ EOD;
 	public function callback() {
 		header( 'HTTP/1.1 200 OK' );
 		echo "OK";
-		//IPN from Pipwave
+		//IPN from pipwave
 		$post_data = json_decode( file_get_contents( 'php://input' ), true );
 
 		$timestamp          = ( isset( $post_data['timestamp'] ) && !empty( $post_data['timestamp'] ) ) ? $post_data['timestamp'] : time();
@@ -731,7 +730,7 @@ EOD;
 	public function feed_list_no_item_message() {
 		$settings = $this->get_plugin_settings();
 		if ( ( rgar( $settings, 'api_key' ) == null || rgar( $settings, 'api_key' ) == '' ) || ( rgar( $settings, 'api_secret' ) == null || rgar( $settings, 'api_secret' ) == '' ) ) {
-			return sprintf( esc_html__( 'To get started, please configure your %sPipwave Settings%s!', 'translator' ), '<a href="' . admin_url( 'admin.php?page=gf_settings&subview=' . $this->_slug ) . '">', '</a>' );
+			return sprintf( esc_html__( 'To get started, please configure your %spipwave Settings%s!', 'translator' ), '<a href="' . admin_url( 'admin.php?page=gf_settings&subview=' . $this->_slug ) . '">', '</a>' );
 		} else {
 			return parent::feed_list_no_item_message();
 		}
@@ -797,7 +796,7 @@ EOD;
 			'The top rounded square is what buyer will see',
 			'Remember to add title/label for this field',
 			'Click Update and wait until you see the \'Form updated successfully\'',
-			'Hover mouse to Settings and click Pipwave.<br>Or you can click Settings, then select pipwave',
+			'Hover mouse to Settings and click pipwave.<br>Or you can click Settings, then select pipwave',
 			'Click Edit. If there is no pipwave feeds available. Click Add New and follow instructions in <a href="#install">Install & Configure</a>',
 			'Scroll down... (if you had configured this setting beforehand)',
 			'Check Enable Condition',
