@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Gravity Forms pipwave Standard Add-On
+Plugin Name: pipwave - Gravity Forms
 Plugin URI: https://www.pipwave.com/
 Description: Simple, reliable, and cost-effective way to accept payments online. And it's free to use!
 Version: 1.0

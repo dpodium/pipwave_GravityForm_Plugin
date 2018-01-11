@@ -11,7 +11,7 @@ class GFpipwave extends GFPaymentAddOn {
     protected $_slug                        = 'gravityformspipwave';
     protected $_path                        = 'gravityformspipwave/pipwave.php';
     protected $_full_path                   = __FILE__;
-    protected $_title                       = 'Gravity Forms pipwave Add-On';
+    protected $_title                       = 'pipwave - Gravity Forms';
     protected $_short_title                 = 'pipwave';
 	protected $_supports_callbacks          = true;
 
@@ -72,17 +72,17 @@ class GFpipwave extends GFPaymentAddOn {
 		curl_setopt( $ch, CURLOPT_USERAGENT, $agent );
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, TRUE );
 		$response = curl_exec( $ch );
-		if ( $response == false ) {
-			echo "<pre>";
-			echo 'CURL ERROR: ' . curl_errno( $ch ) . '::' . curl_error( $ch );
-			die;
-		}
+//		if ( $response == false ) {
+//			echo "<pre>";
+//			echo 'CURL ERROR: ' . curl_errno( $ch ) . '::' . curl_error( $ch );
+//			die;
+//		}
 		curl_close( $ch );
 		return json_decode( $response, true );
 	}
 
 	//render sdk THIS is the form that appear
-	//now dont need this
+	//NOT IN USED DUE TO GF cannot support
 	public function renderSdk( $response, $api_key, $sdk_url, $loading_img ){
 		if ($response['status'] == 200) {
 			$api_data = json_encode([
@@ -132,8 +132,6 @@ EOD;
 		$country                = rgar( $entry, $feed['meta']['billingInformation_country'] );
 		$billingCountryCode     = GF_Fields::get( 'address' )->get_country_code( $country );
 
-		//var_dump($entry);
-		//var_dump($feed);
 		$string                 = rgar( $entry, $feed['meta']['fee_shipping_amount'] );
 		$shipping_amount        = preg_replace('/[^0-9.]/', '', $string );
 
@@ -190,7 +188,7 @@ EOD;
 			),
 			'api_override' => array(
 				'success_url'   => $successUrl, //! empty( $feed['meta']['successUrl'] ) ? urlencode( $feed['meta']['successUrl'] ) : $successUrl,
-				'fail_url'      => ! empty( $feed['meta']['failUrl'] ) ? urlencode( $feed['meta']['failUrl'] ) :  get_bloginfo( 'url' ) ,
+				'fail_url'      => !empty( $feed['meta']['failUrl'] ) ? urlencode( $feed['meta']['failUrl'] ) :  get_bloginfo( 'url' ) ,
 				'notification_url' => urlencode( get_bloginfo( 'url' ) . '/?page=gf_pipwave_ipn' ),//'https://3d41d97e.ngrok.io/wordpress/?page=gf_pipwave_ipn',
 			),
 		);
@@ -283,7 +281,7 @@ EOD;
 		$timestamp          = ( isset( $post_data['timestamp'] ) && !empty( $post_data['timestamp'] ) ) ? $post_data['timestamp'] : time();
 		$pw_id              = ( isset( $post_data['pw_id'] ) && !empty( $post_data['pw_id'] ) ) ? $post_data['pw_id'] : '';
 		$order_number       = ( isset( $post_data['txn_id'] ) && !empty( $post_data['txn_id'] ) ) ? $post_data['txn_id'] : '';
-		$pg_txn_id           = ( isset( $post_data['pg_txn_id'] ) && !empty( $post_data['pg_txn_id'] ) ) ? $post_data['pg_txn_id'] : '';
+		$pg_txn_id          = ( isset( $post_data['pg_txn_id'] ) && !empty( $post_data['pg_txn_id'] ) ) ? $post_data['pg_txn_id'] : '';
 		$amount             = ( isset( $post_data['amount'] ) && !empty( $post_data['amount'] ) ) ? $post_data['amount'] : '';
 		$currency_code      = ( isset( $post_data['currency_code'] ) && !empty( $post_data['currency_code'] ) ) ? $post_data['currency_code'] : '';
 		$transaction_status = ( isset( $post_data['transaction_status'] ) && !empty( $post_data['transaction_status'] ) ) ? $post_data['transaction_status'] : '';
@@ -309,7 +307,7 @@ EOD;
 			'txn_id'            => $order_number,
 			'amount'            => $amount,
 			'currency_code'     => $currency_code,
-			'transaction_status' => $transaction_status,
+			'transaction_status'=> $transaction_status,
 			'api_secret'        => rgar( $settings, 'api_secret' ),
 		);
 
@@ -325,9 +323,6 @@ EOD;
 		if ( $entry['payment_amount'] == '' ) {
 			GFAPI::update_entry_property( $entry['id'], 'payment_amount', $final_amount );
 		}
-		//var_dump($entry);
-		//var_dump( $entry );
-		//print_r($entry);
 		//$transaction_status = -1;
 		//$txn_sub_status = 502;
 		$action = $this->processNotification( $transaction_status, $entry, $txn_sub_status, $final_amount, $refund, $pg_txn_id, $reverse_txn_id );
@@ -370,7 +365,6 @@ EOD;
 			case 5: // pending
 				GFAPI::update_entry_property( $entry['id'], 'payment_status', 'PendingMerchant' );
 				GFPaymentAddOn::add_note( $entry['id'], sprintf( __( 'ENTRY %s. Merchant action pending.', 'gravityformspipwave' ), $entry['id'] ) );
-
 				break;
 			case 1: // failed
 				$action['id']             = $entry['id'] . '_Fail';
@@ -383,12 +377,10 @@ EOD;
 
 				GFAPI::update_entry_property( $entry['id'], 'payment_status', 'Fail' );
 				GFPaymentAddOn::add_note( $entry['id'], sprintf( __( 'ENTRY %s. Payment failed.', 'gravityformspipwave' ), $entry['id'] ) );
-
 				break;
 			case 2: // cancelled
 				GFAPI::update_entry_property( $entry['id'], 'payment_status', 'Cancelled' );
 				GFPaymentAddOn::add_note( $entry['id'], sprintf( __( 'ENTRY %s. Payment cancelled.', 'gravityformspipwave' ), $entry['id'] ) );
-
 				break;
 			case 10: // complete
 				//$status = SELF::PIPWAVE_PAID;
@@ -403,7 +395,7 @@ EOD;
 					$action['entry_id']         = $entry['id'];
 					$action['payment_date']     = gmdate( 'y-m-d H:i:s' );
 					$action['payment_method']	= 'pipwave';
-					$action['ready_to_fulfill'] = ! $entry['is_fulfilled'] ? true : false;
+					$action['ready_to_fulfill'] = !$entry['is_fulfilled'] ? true : false;
 					GFAPI::update_entry_property( $entry['id'], 'payment_status', 'Paid' );
 
 					//GFPaymentAddOn::add_note( $entry['id'], sprintf( __( 'ENTRY %s. Payment received: %s ', 'gravityformspipwave' ), $entry['id'], $final_amount ) );
@@ -744,15 +736,14 @@ EOD;
 
 //=our own custom pipwave page==================================================================================================================================
 	public function plugin_page(){
-		//$entry = GFAPI::get_entry( '239' );
-		//var_dump($entry);
+		$logo = plugins_url() . '/gravityformspipwave/images/logo_bnw.png';
     	$html = <<<EOD
 <style>
     .center {
 	    text-align: center;
 	}
 </style>
-	<div class="center"><img src="https://www.pipwave.com/wp-content/themes/zerif-lite-child/images/logo_bnw.png" /></div>
+	<div class="center"><img src="$logo"/></div>
 	<p class="center">Simple, reliable, and cost-effective way to accept payments online. And it's free to use!</p>
     <h1>Install & Configure pipwave in Gravity Forms</h1>
     <p>You will need a pipwave account. If you don't have one, don't worry, you can create one during the configuration process. Please click link below :</p>
@@ -777,7 +768,7 @@ EOD;
 			'Click Add New, then enter the information required. \'*\' firgure means the information is mandatory, and a field have to be create to map to it.',
 		];
 		for ( $i = 1; $i < 9; $i++ ) {
-			$img    = GFCommon::get_base_url() . '../../gravityformspipwave/images/configure/configure' . $i . '.png';
+			$img    = plugins_url() . '/gravityformspipwave/images/configure/configure' . $i . '.png';
 			$html   = '<p>Step ' . $i . ' ' . $message1[$i] . '</p>';
 			$html  .= '<img src = ' . $img . ' width="1000" ></img>';
 			echo $html;
@@ -804,7 +795,7 @@ EOD;
 			'Now it\'s done!',
 		];
 		for ( $i = 1; $i < 12; $i++ ) {
-			$img    = GFCommon::get_base_url() . '../../gravityformspipwave/images/multiple_payment/multiple_payment_' . $i . '.png';
+			$img    = plugins_url() . '/gravityformspipwave/images/multiple_payment/multiple_payment_' . $i . '.png';
 			$html   = '<p>Step ' . $i . ' ' . $message2[$i] . '</p>';
 			$html  .= '<img src = ' . $img . ' width="1000" ></img>';
 			echo $html;
