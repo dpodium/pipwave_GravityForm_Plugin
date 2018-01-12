@@ -733,7 +733,7 @@ EOD;
 
 //=our own custom pipwave page==================================================================================================================================
 	public function plugin_page(){
-		$logo = plugins_url('images/logo_bnw.png', __FILE__);
+		$logo = plugins_url('images/logo_bnw.png', $this->_full_path);
     	$html = <<<EOD
 <style>
     .center {
@@ -765,7 +765,7 @@ EOD;
 			'Click Add New, then enter the information required. \'*\' firgure means the information is mandatory, and a field have to be create to map to it.',
 		];
 		for ( $i = 1; $i < 9; $i++ ) {
-			$img    = plugins_url('/images/configure/configure' . $i . '.png', __FILE__);
+			$img    = plugins_url('/images/configure/configure' . $i . '.png', $this->_full_path);
 			$html   = '<p>Step ' . $i . ' ' . $message1[$i] . '</p>';
 			$html  .= '<img src = ' . $img . ' width="1000" ></img>';
 			echo $html;
@@ -792,7 +792,7 @@ EOD;
 			'Now it\'s done!',
 		];
 		for ( $i = 1; $i < 12; $i++ ) {
-			$img    = plugins_url('/images/multiple_payment/multiple_payment_' . $i . '.png', __FILE__);
+			$img    = plugins_url('/images/multiple_payment/multiple_payment_' . $i . '.png', $this->_full_path);
 			$html   = '<p>Step ' . $i . ' ' . $message2[$i] . '</p>';
 			$html  .= '<img src = ' . $img . ' width="1000" ></img>';
 			echo $html;
